@@ -1,4 +1,5 @@
 import cv2
+import dlib
 
 capture = cv2.VideoCapture(0)
 capture.set(cv2.CAP_PROP_FRAME_WIDTH,640)
@@ -22,7 +23,8 @@ while True:
         
 
         cv2.imshow("VideoFrame", frame)
-    if cv2.waitKey(1) > 0: break
+    if cv2.waitKey(1) & 0xFF == ord('q'): 
+        break
 
 
 
