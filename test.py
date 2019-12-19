@@ -1,2 +1,3 @@
 import cv2
-print(cv2.version)
+import numpy
+import matplotlib
