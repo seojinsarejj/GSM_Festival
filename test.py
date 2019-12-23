@@ -3,6 +3,15 @@ import numpy as np
 from imutils import face_utils
 from keras.models import load_model
 
+img_w = 640
+img_h = 480
+bpp = 3
+
+center_x = int(img_w/2.0)
+center_y = int(img_h/2.0)
+location = (center_x-150,center_y-120)
+
+cnt = 0
 IMG_SIZE = (34, 26)
 
 detector = dlib.get_frontal_face_detector()
@@ -11,7 +20,7 @@ predictor = dlib.shape_predictor('shape_predictor_68_face_landmarks.dat')
 model = load_model('models/2018_12_17_22_58_35.h5')
 model.summary()
 
-def crop_eye(img, eye_points):
+def crop_eye(img, eye_points): 
   x1, y1 = np.amin(eye_points, axis=0)
   x2, y2 = np.amax(eye_points, axis=0)
   cx, cy = (x1 + x2) / 2, (y1 + y2) / 2
@@ -31,7 +40,7 @@ def crop_eye(img, eye_points):
   return eye_img, eye_rect
 
 # main
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(0)
 
 while cap.isOpened():
   ret, img_ori = cap.read()
@@ -82,7 +91,9 @@ while cap.isOpened():
     else :
       cv2.rectangle(img, pt1=tuple(eye_rect_r[0:2]), pt2=tuple(eye_rect_r[2:4]), color=(0,0,255), thickness=2)
           
-  
+    
+    cv2.putText(img, 'Tutorial', location, cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0,0,255))
+
    
   cv2.imshow('result', img)
   if cv2.waitKey(1) == ord('q'):
