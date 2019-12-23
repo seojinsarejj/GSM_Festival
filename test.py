@@ -5,7 +5,7 @@ from keras.models import load_model
 import time
 import serial
 
-port = 'COM6'
+port = 'COM3'
 camera = 1
 img_w = 640
 img_h = 480
@@ -22,7 +22,7 @@ cnt = 0
 IMG_SIZE = (34, 26)
 
 
-#arduino = serial.Serial(port, 9600)
+arduino = serial.Serial(port, 9600)
 
 
 detector = dlib.get_frontal_face_detector()
@@ -114,13 +114,13 @@ while cap.isOpened():
       cnt +=1
       
       if cnt == 1 :
-          #arduino.write(1)
+          arduino.write('1'.encode('utf-8'))
           print(1)
       elif cnt == 2:
-          #arduino.write(2)
+          arduino.write('2'.encode('utf-8'))
           print(2)
       elif cnt >= 3:
-          #arduino.write(3)
+          arduino.write('3'.encode('utf-8'))
           print(3)
           cnt = 0
 
