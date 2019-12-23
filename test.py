@@ -3,8 +3,10 @@ import numpy as np
 from imutils import face_utils
 from keras.models import load_model
 import time
-import threading
+import serial
 
+port = 'COM6'
+camera = 1
 img_w = 640
 img_h = 480
 bpp = 3
@@ -18,6 +20,10 @@ location2 = (center_x+150,center_y-120)
 
 cnt = 0
 IMG_SIZE = (34, 26)
+
+
+#arduino = serial.Serial(port, 9600)
+
 
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor('shape_predictor_68_face_landmarks.dat')
@@ -45,7 +51,7 @@ def crop_eye(img, eye_points):
   return eye_img, eye_rect
 
 # main
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(camera)
 
 while cap.isOpened():
   ret, img_ori = cap.read()
@@ -104,17 +110,21 @@ while cap.isOpened():
     
     
 
-    if sec >= 30 :
+    if sec >= 30 :    
       cnt +=1
+      
+      if cnt == 1 :
+          #arduino.write(1)
+          print(1)
+      elif cnt == 2:
+          #arduino.write(2)
+          print(2)
+      elif cnt >= 3:
+          #arduino.write(3)
+          print(3)
+          cnt = 0
+
       sec=0
-
-
-    if cnt == 1 :
-        pointer = 1
-    elif cnt == 2:
-        pointer = 2
-    elif cnt >= 3:
-        cnt = 0
 
 
 
