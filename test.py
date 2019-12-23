@@ -3,15 +3,18 @@ import numpy as np
 from imutils import face_utils
 from keras.models import load_model
 import time
+import threading
 
 img_w = 640
 img_h = 480
 bpp = 3
-min = 0
+sec = 0
+pointer = 0
 
 center_x = int(img_w/2.0)
 center_y = int(img_h/2.0)
-location = (center_x-150,center_y-120)
+location1 = (center_x-150,center_y-120)
+location2 = (center_x+150,center_y-120)
 
 cnt = 0
 IMG_SIZE = (34, 26)
@@ -94,15 +97,29 @@ while cap.isOpened():
       cv2.rectangle(img, pt1=tuple(eye_rect_r[0:2]), pt2=tuple(eye_rect_r[2:4]), color=(0,0,255), thickness=2)
           
     
-    if(state_r == '-' and state_l =='-' ):
-        if state_r =='O' or state_l == 'O':
-              break
-        time.sleep(1)
-        cnt += 1
+    if state_r == '-' and state_l =='-' :
+      sec+=1
+    else :
+      sec = 0
+    
+    
+
+    if sec >= 30 :
+      cnt +=1
+      sec=0
+
+
+    if cnt == 1 :
+        pointer = 1
+    elif cnt == 2:
+        pointer = 2
+    elif cnt >= 3:
+        cnt = 0
 
 
 
-    cv2.putText(img, str(cnt), location, cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0,0,255),2)
+    cv2.putText(img, str(sec/10), location1, cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0,0,255),2)
+    cv2.putText(img, str(cnt), location2, cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0,0,255),2)
 
 
 
