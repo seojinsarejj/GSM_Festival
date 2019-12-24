@@ -11,6 +11,7 @@ img_w = 640
 img_h = 480
 bpp = 3
 sec = 0
+open_eye = 0
 pointer = 0
 
 
@@ -18,6 +19,7 @@ center_x = int(img_w/2.0)
 center_y = int(img_h/2.0)
 location1 = (center_x-150,center_y-120)
 location2 = (center_x+150,center_y-120)
+location3 = (center_x,center_y-120)
 
 cnt = 0
 IMG_SIZE = (34, 26)
@@ -106,8 +108,10 @@ while cap.isOpened():
     
     if state_r == '-' and state_l =='-' :
       sec+=1
+      open_eye=0
     else :
       sec = 0
+      open_eye+=1
     
     
 
@@ -124,14 +128,20 @@ while cap.isOpened():
           arduino.write('3'.encode('utf-8'))
           print(3)
           cnt = 0
-          arduino.write('0'.encode('utf-8'))
+          #arduino.write('0'.encode('utf-8'))
 
       sec=0
+      open_eye = 0
 
+    if open_eye == 100:
+      arduino.write('0'.encode('utf-8'))
+      cnt = 0
+      open_eye = 0
 
 
     cv2.putText(img, str(sec/10), location1, cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0,0,255),2)
     cv2.putText(img, str(cnt), location2, cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0,0,255),2)
+    cv2.putText(img, str(open_eye/10), location3, cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0,0,255),2)
 
 
 
