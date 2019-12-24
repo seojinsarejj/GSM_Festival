@@ -5,13 +5,14 @@ from keras.models import load_model
 import time
 import serial
 
-port = 'COM3'
+port = 'COM4'
 camera = 1
 img_w = 640
 img_h = 480
 bpp = 3
 sec = 0
 pointer = 0
+
 
 center_x = int(img_w/2.0)
 center_y = int(img_h/2.0)
@@ -123,6 +124,7 @@ while cap.isOpened():
           arduino.write('3'.encode('utf-8'))
           print(3)
           cnt = 0
+          arduino.write('0'.encode('utf-8'))
 
       sec=0
 
