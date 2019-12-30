@@ -5,7 +5,7 @@ from keras.models import load_model
 import time
 import serial
 
-port = 'COM4'
+port = 'COM5'
 camera = 1
 img_w = 640
 img_h = 480
@@ -108,7 +108,9 @@ while cap.isOpened():
     
     if state_r == '-' and state_l =='-' :
       sec+=1
-      open_eye=0
+      if sec >= 10:
+        open_eye=0
+
     else :
       sec = 0
       open_eye+=1
@@ -140,8 +142,8 @@ while cap.isOpened():
 
 
     cv2.putText(img, str(sec/10), location1, cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0,0,255),2)
-    cv2.putText(img, str(cnt), location2, cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0,0,255),2)
-    cv2.putText(img, str(open_eye/10), location3, cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0,0,255),2)
+    cv2.putText(img, str(cnt), location2, cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0,255,255),2)
+    cv2.putText(img, str(open_eye/10), location3, cv2.FONT_HERSHEY_SIMPLEX, 1.5, (255,0,0),2)
 
 
 
