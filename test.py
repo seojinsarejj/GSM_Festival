@@ -6,7 +6,7 @@ import time
 import serial
 
 port = 'COM5'
-camera = 1
+camera = 0
 img_w = 640
 img_h = 480
 bpp = 3
@@ -130,7 +130,7 @@ while cap.isOpened():
           arduino.write('3'.encode('utf-8'))
           print(3)
           cnt = 0
-          #arduino.write('0'.encode('utf-8'))
+          arduino.write('0'.encode('utf-8'))
 
       sec=0
       open_eye = 0
@@ -144,8 +144,9 @@ while cap.isOpened():
     cv2.putText(img, str(sec/10), location1, cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0,0,255),2)
     cv2.putText(img, str(cnt), location2, cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0,255,255),2)
     cv2.putText(img, str(open_eye/10), location3, cv2.FONT_HERSHEY_SIMPLEX, 1.5, (255,0,0),2)
-
-
+  
+  cv2.namedWindow("result", cv2.WND_PROP_FULLSCREEN) 
+  cv2.setWindowProperty("result",cv2.WND_PROP_FULLSCREEN,cv2.WINDOW_FULLSCREEN) 
 
    
   cv2.imshow('result', img)
