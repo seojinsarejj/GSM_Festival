@@ -5,8 +5,9 @@ from keras.models import load_model
 import time
 import serial
 
+a = 1
 port = 'COM5'
-camera = 0
+camera = 1
 img_w = 640
 img_h = 480
 bpp = 3
@@ -67,84 +68,94 @@ while cap.isOpened():
   img = img_ori.copy()
   gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
+
   faces = detector(gray)
 
-  for face in faces:
-    shapes = predictor(gray, face)
-    shapes = face_utils.shape_to_np(shapes)
+  try:
+    
+  
+    for face in faces:
+      if len(faces)==1 :
+        shapes = predictor(gray, face)
+        shapes = face_utils.shape_to_np(shapes)
 
-    eye_img_l, eye_rect_l = crop_eye(gray, eye_points=shapes[36:42])
-    eye_img_r, eye_rect_r = crop_eye(gray, eye_points=shapes[42:48])
+        eye_img_l, eye_rect_l = crop_eye(gray, eye_points=shapes[36:42])
+        eye_img_r, eye_rect_r = crop_eye(gray, eye_points=shapes[42:48])
 
-    eye_img_l = cv2.resize(eye_img_l, dsize=IMG_SIZE)
-    eye_img_r = cv2.resize(eye_img_r, dsize=IMG_SIZE)
-    eye_img_r = cv2.flip(eye_img_r, flipCode=1)
+        eye_img_l = cv2.resize(eye_img_l, dsize=IMG_SIZE)
+        eye_img_r = cv2.resize(eye_img_r, dsize=IMG_SIZE)
+        try:
+          eye_img_r = cv2.flip(eye_img_r, flipCode=1)
+        except:
+          pass
 
 
-    eye_input_l = eye_img_l.copy().reshape((1, IMG_SIZE[1], IMG_SIZE[0], 1)).astype(np.float32) / 255.
-    eye_input_r = eye_img_r.copy().reshape((1, IMG_SIZE[1], IMG_SIZE[0], 1)).astype(np.float32) / 255.
+        eye_input_l = eye_img_l.copy().reshape((1, IMG_SIZE[1], IMG_SIZE[0], 1)).astype(np.float32) / 255.
+        eye_input_r = eye_img_r.copy().reshape((1, IMG_SIZE[1], IMG_SIZE[0], 1)).astype(np.float32) / 255.
 
-    pred_l = model.predict(eye_input_l)
-    pred_r = model.predict(eye_input_r)
+        pred_l = model.predict(eye_input_l)
+        pred_r = model.predict(eye_input_r)
 
     # visualize
-    state_l = 'O' if pred_l > 0.1 else '-'
-    state_r = 'O' if pred_r > 0.1 else '-'
+        state_l = 'O' if pred_l > 0.1 else '-'
+        state_r = 'O' if pred_r > 0.1 else '-'
 
-    state_l = state_l % pred_l
-    state_r = state_r % pred_r
+        state_l = state_l % pred_l
+        state_r = state_r % pred_r
 
-    if state_l == 'O':
-      cv2.rectangle(img, pt1=tuple(eye_rect_l[0:2]), pt2=tuple(eye_rect_l[2:4]), color=(255,0,0), thickness=2)
-    else :
-      cv2.rectangle(img, pt1=tuple(eye_rect_l[0:2]), pt2=tuple(eye_rect_l[2:4]), color=(0,0,255), thickness=2)
+        if state_l == 'O':
+          cv2.rectangle(img, pt1=tuple(eye_rect_l[0:2]), pt2=tuple(eye_rect_l[2:4]), color=(255,0,0), thickness=2)
+        else :
+          cv2.rectangle(img, pt1=tuple(eye_rect_l[0:2]), pt2=tuple(eye_rect_l[2:4]), color=(0,0,255), thickness=2)
 
 
-    if state_r == 'O':
-      cv2.rectangle(img, pt1=tuple(eye_rect_r[0:2]), pt2=tuple(eye_rect_r[2:4]), color=(255,0,0), thickness=2)
-    else :
-      cv2.rectangle(img, pt1=tuple(eye_rect_r[0:2]), pt2=tuple(eye_rect_r[2:4]), color=(0,0,255), thickness=2)
-          
-    
-    if state_r == '-' and state_l =='-' :
-      sec+=1
-      if sec >= 10:
-        open_eye=0
-
-    else :
-      sec = 0
-      open_eye+=1
-    
-    
-
-    if sec >= 30 :    
-      cnt +=1
+        if state_r == 'O':
+          cv2.rectangle(img, pt1=tuple(eye_rect_r[0:2]), pt2=tuple(eye_rect_r[2:4]), color=(255,0,0), thickness=2)
+        else :
+          cv2.rectangle(img, pt1=tuple(eye_rect_r[0:2]), pt2=tuple(eye_rect_r[2:4]), color=(0,0,255), thickness=2)
+            
       
-      if cnt == 1 :
-          arduino.write('1'.encode('utf-8'))
-          print(1)
-      elif cnt == 2:
-          arduino.write('2'.encode('utf-8'))
-          print(2)
-      elif cnt >= 3:
-          arduino.write('3'.encode('utf-8'))
-          print(3)
-          cnt = 0
+        if state_r == '-' and state_l =='-' :
+          sec+=1
+          if sec >= 10:
+            open_eye=0
+
+        else :
+          sec = 0
+          open_eye+=1
+      
+
+        if sec >= 30 :    
+          cnt +=1
+        
+          if cnt == 1 :
+              arduino.write('1'.encode('utf-8'))
+              print(1)
+          elif cnt == 2:
+              arduino.write('2'.encode('utf-8'))
+              print(2)
+          elif cnt >= 3:
+              arduino.write('3'.encode('utf-8'))
+              print(3)
+              cnt = 0
+              arduino.write('0'.encode('utf-8'))
+
+          sec=0
+          open_eye = 0
+
+        if open_eye == 100:
           arduino.write('0'.encode('utf-8'))
-
-      sec=0
-      open_eye = 0
-
-    if open_eye == 100:
-      arduino.write('0'.encode('utf-8'))
-      cnt = 0
-      open_eye = 0
+          cnt = 0
+          open_eye = 0
 
 
-    cv2.putText(img, str(sec/10), location1, cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0,0,255),2)
-    cv2.putText(img, str(cnt), location2, cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0,255,255),2)
-    cv2.putText(img, str(open_eye/10), location3, cv2.FONT_HERSHEY_SIMPLEX, 1.5, (255,0,0),2)
+      cv2.putText(img, str(sec/10), location1, cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0,0,255),2)
+      cv2.putText(img, str(cnt), location2, cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0,255,255),2)
+      cv2.putText(img, str(open_eye/10), location3, cv2.FONT_HERSHEY_SIMPLEX, 1.5, (255,0,0),2)
   
+  except:
+    pass
+
   cv2.namedWindow("result", cv2.WND_PROP_FULLSCREEN) 
   cv2.setWindowProperty("result",cv2.WND_PROP_FULLSCREEN,cv2.WINDOW_FULLSCREEN) 
 
